@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Statistiques{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">Vue d'ensemble</h2>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Statistiques globales</h3>
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <h5 class="mb-1">Score moyen</h5>
+                            <p class="mb-0" id="averageScore">Chargement...</p>
+                        </div>
+                        <div class="list-group-item">
+                            <h5 class="mb-1">Quiz complétés</h5>
+                            <p class="mb-0" id="completedQuizzes">Chargement...</p>
+                        </div>
+                        <div class="list-group-item">
+                            <h5 class="mb-1">Temps moyen</h5>
+                            <p class="mb-0" id="averageTime">Chargement...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Performance par matière</h3>
+                    <canvas id="subjectChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h3>Types de questions</h3>
+                    <canvas id="questionTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h3>Historique détaillé</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Quiz</th>
+                            <th>Score</th>
+                            <th>Temps</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable">
+                        <!-- Rempli dynamiquement -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/statistics.js') }}"></script>
+{% endblock %}

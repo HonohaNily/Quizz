@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RéviseAvecMoi - Générateur de Quiz 3ème</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --primary-dark: #2980b9;
+            --secondary: #2ecc71;
+            --accent: #9b59b6;
+            --dark: #34495e;
+            --light: #f5f7fa;
+            --grey: #95a5a6;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card h2 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .upload-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+        
+        .upload-zone {
+            width: 100%;
+            max-width: 600px;
+            min-height: 200px;
+            border: 3px dashed var(--grey);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+        
+        .upload-zone:hover, .upload-zone.active {
+            border-color: var(--primary);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--grey);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-zone:hover .upload-icon, .upload-zone.active .upload-icon {
+            color: var(--primary);
+        }
+        
+        .upload-text {
+            color: var(--grey);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .upload-hint {
+            color: var(--grey);
+            font-size: 0.9rem;
+        }
+        
+        .upload-input {
+            display: none;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #27ae60;
+        }
+        
+        .file-list {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 1.5rem;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .file-icon {
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+        
+        .file-name {
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: var(--grey);
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .file-actions button {
+            background: none;
+            border: none;
+            color: var(--grey);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+        
+        .file-actions button:hover {
+            color: var(--danger);
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .quiz-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-counter {
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .question-number {
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 0.5rem;
+        }
+        
+        .quiz-progress {
+            height: 6px;
+            background-color: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .quiz-question {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+        
+        .quiz-options {
+            list-style-type: none;
+        }
+        
+        .quiz-option {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 3rem;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e9ecef;
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--secondary);
+            background-color: rgba(46, 204, 113, 0.1);
+        }
+        
+        .quiz-option.incorrect {
+            border-color: var(--danger);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .option-letter {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .quiz-option.selected .option-letter {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .quiz-feedback {
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--primary);
+            border-radius: 0 5px 5px 0;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+        
+        .feedback-correct {
+            border-left-color: var(--secondary);
+        }
+        
+        .feedback-incorrect {
+            border-left-color: var(--danger);
+        }
+        
+        .quiz-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .quiz-result {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .result-score {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .result-message {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: var(--dark);
+        }
+        
+        .result-details {
+            margin-bottom: 2rem;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            display: none;
+            padding: 1rem;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+        
+        .subject-selector {
+            margin-bottom: 2rem;
+        }
+        
+        .subject-selector select {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .card {
+                padding: 1.5rem;
+            }
+            
+            .upload-zone {
+                min-height: 150px;
+                padding: 1.5rem;
+            }
+            
+            .quiz-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .question-counter {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>RéviseAvecMoi</h1>
+        <p>Générateur de Quiz et QCM pour les élèves de 3ème</p>
+    </header>
+    
+    <div class="container">
+        <div class="card">
+            <h2>Téléchargez vos cours</h2>
+            <p>Importez vos documents pour générer des quiz personnalisés. Formats acceptés : PDF, DOCX, TXT.</p>
+            
+            <div class="upload-container">
+                <div id="uploadZone" class="upload-zone">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Glissez vos documents ici</div>
+                    <div class="upload-hint">ou cliquez pour sélectionner des fichiers</div>
+                    <input type="file" id="fileInput" class="upload-input" multiple accept=".pdf,.docx,.txt">
+                </div>
+                
+                <div id="fileList" class="file-list"></div>
+                
+                <button id="generateBtn" class="btn" disabled>Générer des Quiz</button>
+            </div>
+        </div>
+        
+        <div id="error" class="error-message">Une erreur s'est produite lors du traitement des fichiers.</div>
+        
+        <div id="loader" class="loader">
+            <div class="spinner"></div>
+            <p>Analyse des documents et génération des questions...</p>
+            <p>Cela peut prendre quelques instants selon la taille des fichiers.</p>
+        </div>
+        
+        <div id="quizContainer" class="card" style="display: none;">
+            <h2>Quiz généré</h2>
+            
+            <div class="subject-selector">
+                <label for="subjectSelect">Choisissez la matière :</label>
+                <select id="subjectSelect">
+                    <option value="all">Toutes les matières</option>
+                    <option value="maths">Mathématiques</option>
+                    <option value="francais">Français</option>
+                    <option value="histoire">Histoire-Géographie</option>
+                    <option value="sciences">Sciences de la Vie et de la Terre</option>
+                    <option value="physique">Physique-Chimie</option>
+                    <option value="anglais">Anglais</option>
+                </select>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="quiz">Quiz</div>
+                <div class="tab" data-tab="original">Document original</div>
+            </div>
+            
+            <div id="quizTab" class="tab-content active">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <div class="question-counter">
+                            <span class="question-number">1</span>
+                            <span>Question 1 sur 10</span>
+                        </div>
+                        <div>
+                            <span class="subject-badge" style="background-color: var(--primary); color: white; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.8rem;">Mathématiques</span>
+                        </div>
+                    </div>
+                    
+                    <div class="quiz-progress">
+                        <div class="progress-bar" style="width: 10%;"></div>
+                    </div>
+                    
+                    <div class="quiz-question">
+                        Si un triangle rectangle a un angle de 30°, quelles sont les valeurs des deux autres angles ?
+                    </div>
+                    
+                    <ul class="quiz-options">
+                        <li class="quiz-option">
+                            <span class="option-letter">A</span>
+                            60° et 90°
+                        </li>
+                        <li class="quiz-option selected">
+                            <span class="option-letter">B</span>
+                            60° et 30°
+                        </li>
+                        <li class="quiz-option">
+                            <span class="option-letter">C</span>
+                            45° et 45°
+                        </li>
+                        <li class="quiz-option">
+                            <span class="option-letter">D</span>
+                            90° et 30°
+                        </li>
+                    </ul>
+                    
+                    <div class="quiz-feedback">
+                        La réponse correcte est : A - 60° et 90°. 
+                        Dans un triangle, la somme des angles est toujours égale à 180°. 
+                        Comme le triangle est rectangle, un angle vaut déjà 90°. 
+                        Donc les deux autres angles ont une somme de 90°. Si l'un vaut 30°, l'autre vaut 60°.
+                    </div>
+                    
+                    <div class="quiz-actions">
+                        <button class="btn" id="prevBtn" style="background-color: var(--grey);">Question précédente</button>
+                        <button class="btn" id="nextBtn">Vérifier</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="originalTab" class="tab-content">
+                <div class="card" style="box-shadow: none; padding: 0;">
+                    <h3>Document original</h3>
+                    <div id="documentContent" style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 5px; margin-top: 1rem; white-space: pre-line;">
+                        Le contenu du document original s'affichera ici, avec les passages pertinents mis en évidence.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script>
+        // Configuration pour PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        
+        // Données globales
+        let uploadedFiles = [];
+        let extractedTexts = {};
+        let detectedSubjects = {};
+        let generatedQuizzes = {};
+        
+        // Éléments DOM
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const generateBtn = document.getElementById('generateBtn');
+        const loader = document.getElementById('loader');
+        const quizContainer = document.getElementById('quizContainer');
+        const errorMessage = document.getElementById('error');
+        const documentContent = document.getElementById('documentContent');
+        const subjectSelect = document.getElementById('subjectSelect');
+        
+        // Onglets
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Quiz elements
+        const quizQuestion = document.querySelector('.quiz-question');
+        const quizOptions = document.querySelectorAll('.quiz-option');
+        const questionCounter = document.querySelector('.question-counter');
+        const subjectBadge = document.querySelector('.subject-badge');
+        const progressBar = document.querySelector('.progress-bar');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const feedback = document.querySelector('.quiz-feedback');
+        
+        // Variables de suivi du quiz
+        let currentQuiz = [];
+        let currentQuestionIndex = 0;
+        
+        // Événements pour la zone de dépôt
+        uploadZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('active');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('active');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('active');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+        
+        fileInput.addEventListener('change', () => {
+            handleFiles(fileInput.files);
+        });
+        
+        // Gestion des fichiers téléchargés
+        function handleFiles(files) {
+            if (files.length > 0) {
+                Array.from(files).forEach(file => {
+                    // Ajouter à notre liste de fichiers
+                    uploadedFiles.push(file);
+                    
+                    // Afficher dans l'interface
+                    const fileSize = formatFileSize(file.size);
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.dataset.fileName = file.name;
+                    
+                    let fileIcon = '📄';
+                    if (file.name.endsWith('.pdf')) {
+                        fileIcon = '📕';
+                    } else if (file.name.endsWith('.docx')) {
+                        fileIcon = '📘';
+                    }
+                    
+                    fileItem.innerHTML = `
+                        <div class="file-info">
+                            <span class="file-icon">${fileIcon}</span>
+                            <span class="file-name">${file.name}</span>
+                            <span class="file-size">${fileSize}</span>
+                            <span class="file-status">En attente d'analyse</span>
+                        </div>
+                        <div class="file-actions">
+                            <button class="remove-file">❌</button>
+                        </div>
+                    `;
+                    
+                    fileList.appendChild(fileItem);
+                    
+                    // Commencer à analyser immédiatement
+                    analyzeFile(file).then(result => {
+                        const statusEl = fileItem.querySelector('.file-status');
+                        if (result.success) {
+                            statusEl.textContent = `Analysé - ${result.subject}`;
+                            statusEl.style.color = 'var(--secondary)';
+                        } else {
+                            statusEl.textContent = 'Erreur d\'analyse';
+                            statusEl.style.color = 'var(--danger)';
+                        }
+                    });
+                    
+                    // Suppression du fichier
+                    const removeBtn = fileItem.querySelector('.remove-file');
+                    removeBtn.addEventListener('click', () => {
+                        // Supprimer de l'interface
+                        fileItem.remove();
+                        
+                        // Supprimer de notre liste
+                        const fileIndex = uploadedFiles.findIndex(f => f.name === file.name);
+                        if (fileIndex !== -1) {
+                            uploadedFiles.splice(fileIndex, 1);
+                            delete extractedTexts[file.name];
+                            delete detectedSubjects[file.name];
+                        }
+                        
+                        // Désactiver le bouton si aucun fichier
+                        if (uploadedFiles.length === 0) {
+                            generateBtn.disabled = true;
+                        }
+                    });
+                });
+                
+                // Activer le bouton de génération
+                if (uploadedFiles.length > 0) {
+                    generateBtn.disabled = false;
+                }
+            }
+        }
+        
+        // Analyse des fichiers
+        async function analyzeFile(file) {
+            try {
+                let text = '';
+                
+                if (file.name.endsWith('.pdf')) {
+                    text = await extractTextFromPDF(file);
+                } else if (file.name.endsWith('.docx')) {
+                    // Simulé pour DOCX (intégration réelle nécessiterait mammoth.js)
+                    text = "Contenu simulé du document DOCX";
+                } else if (file.name.endsWith('.txt')) {
+                    text = await file.text();
+                }
+                
+                // Stocker le texte extrait
+                extractedTexts[file.name] = text;
+                
+                // Détecter la matière
+                const subject = detectSubject(text);
+                detectedSubjects[file.name] = subject;
+                
+                return {
+                    success: true,
+                    subject: subject
+                };
+            } catch (error) {
+                console.error("Erreur lors de l'analyse du fichier:", error);
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+        
+        // Extraction du texte d'un PDF
+        async function extractTextFromPDF(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = async function(event) {
+                    try {
+                        const typedArray = new Uint8Array(event.target.result);
+                        const loadingTask = pdfjsLib.getDocument(typedArray);
+                        const pdf = await loadingTask.promise;
+                        
+                        let fullText = '';
+                        
+                        // Extraire le texte de chaque page
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => item.str).join(' ');
+                            fullText += pageText + '\n\n';
+                        }
+                        
+                        resolve(fullText);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Erreur de lecture du fichier'));
+                };
+                
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        // Formatage de la taille du fichier
+        function formatFileSize(bytes) {
+            if (bytes < 1024) {
+                return bytes + ' octets';
+            } else if (bytes < 1048576) {
+                return (bytes / 1024).toFixed(1) + ' Ko';
+            } else {
+                return (bytes / 1048576).toFixed(1) + ' Mo';
+            }
+        }
+        
+        // Détection de la matière
+        function detectSubject(text) {
+            // Mots-clés pour chaque matière
+            const keywordsMap = {
+                'maths': ['mathématiques', 'équation', 'théorème', 'géométrie', 'algèbre', 'fonction', 'calcul', 'triangle', 'cercle', 'polynôme', 'nombre'],
+                'francais': ['français', 'littérature', 'grammaire', 'conjugaison', 'orthographe', 'texte', 'poésie', 'roman', 'auteur', 'analyse'],
+                'histoire': ['histoire', 'géographie', 'civilisation', 'guerre', 'révolution', 'siècle', 'époque', 'période', 'colonisation', 'monde', 'société', 'politique', 'économie', 'région'],
+                'sciences': ['svt', 'biologie', 'sciences', 'vivant', 'terre', 'environnement', 'écosystème', 'écologie', 'cellule', 'organe'],
+                'physique': ['physique', 'chimie', 'élément', 'atome', 'molécule', 'réaction', 'électricité', 'énergie', 'force', 'chaleur'],
+                'anglais': ['anglais', 'english', 'vocabulary', 'grammar', 'language', 'britain', 'american', 'united states', 'the', 'verb']
+            };
+            
+            // Normaliser le texte (minuscules, sans accents)
+            const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            
+            // Compter les occurrences de chaque mot-clé
+            const scores = {};
+            
+            for (const [subject, keywords] of Object.entries(keywordsMap)) {
+                scores[subject] = 0;
+                
+                for (const keyword of keywords) {
+                    const regex = new RegExp('\\b' + keyword + '\\b', 'gi');
+                    const matches = normalizedText.match(regex);
+                    
+                    if (matches) {
+                        scores[subject] += matches.length;
+                    }
+                }
+            }
+            
+            // Trouver la matière avec le score le plus élevé
+            let maxScore = 0;
+            let detectedSubject = 'unknown';
+            
+            for (const [subject, score] of Object.entries(scores)) {
+                if (score > maxScore) {
+                    maxScore = score;
+                    detectedSubject = subject;
+                }
+            }
+            
+            // Convertir en nom affichable
+            const subjectNames = {
+                'maths': 'Mathématiques',
+                'francais': 'Français',
+                'histoire': 'Histoire-Géographie',
+                'sciences': 'Sciences de la Vie et de la Terre',
+                'physique': 'Physique-Chimie',
+                'anglais': 'Anglais',
+                'unknown': 'Matière non identifiée'
+            };
+            
+            return subjectNames[detectedSubject];
+        }
+        
+        // Extraction de concepts-clés
+        function extractKeyPoints(text, subject) {
+    // Diviser en paragraphes plutôt qu'en phrases
+    const paragraphs = text.split(/\n\n+/).filter(p => p.trim().length > 50);
+    const keyPoints = [];
+    
+    // Éliminer les éléments qui ressemblent à des titres ou entêtes
+    const filteredParagraphs = paragraphs.filter(p => {
+        // Éviter les titres, références et éléments de pagination
+        return !/^(UNITÉ|Collège|Chapitre|Page|PARTIE)/i.test(p.trim()) && 
+               p.split(/\s+/).length > 10 &&
+               !/^[0-9]+$/.test(p.trim());
+    });
+    
+    // Extraire des contenus substantiels par matière
+    for (const paragraph of filteredParagraphs) {
+        if (subject === 'Histoire-Géographie') {
+            if (paragraph.match(/\b(en|au|durant|pendant|après|avant|siècle|guerre|révolution|période|époque)\b/i)) {
+                keyPoints.push(paragraph.trim());
+            }
+        } else if (subject === 'Mathématiques') {
+            if (paragraph.match(/\b(théorème|formule|équation|propriété|triangle|cercle|calcul)\b/i)) {
+                keyPoints.push(paragraph.trim());
+            }
+        } else if (subject === 'Français') {
+            if (paragraph.match(/\b(texte|auteur|analyse|roman|poème|grammaire|conjugaison)\b/i)) {
+                keyPoints.push(paragraph.trim());
+            }
+        } else {
+            // Pour les autres matières
+            if (paragraph.length > 100) {
+                keyPoints.push(paragraph.trim());
+            }
+        }
+        
+        // Limiter à 20 points-clés
+        if (keyPoints.length >= 20) break;
+    }
+    
+    // Si nous manquons de points-clés
+    if (keyPoints.length < 5) {
+        // Prendre les paragraphes les plus longs
+        const longParagraphs = filteredParagraphs
+            .sort((a, b) => b.length - a.length)
+            .slice(0, 5 - keyPoints.length);
+        
+        keyPoints.push(...longParagraphs.map(p => p.trim()));
+    }
+    
+    return [...new Set(keyPoints)]; // Éliminer les doublons
+}
+        
+        // Génération de questions
+        function generateGenericQuestion(point, subject) {
+    // Vérifier si le point contient suffisamment d'information
+    if (point.split(/\s+/).length < 10) {
+        return null; // Ignorer les points trop courts
+    }
+    
+    // Extraire une phrase clé significative
+    const keyPhrase = extractKeyPhrase(point);
+    if (!keyPhrase) return null;
+    
+    return {
+        question: `En ${subject}, lequel de ces énoncés est correct ?`,
+        options: generateRealisticOptions(keyPhrase, point),
+        correct: 0, // La première option est correcte
+        feedback: `Explication : ${point}`,
+        sourceLine: point
+    };
+}
+
+function extractKeyPhrase(text) {
+    // Diviser le texte en phrases plus courtes
+    const parts = text.split(/[,.;:]/).filter(p => p.trim().length > 15 && p.trim().length < 100);
+    if (parts.length === 0) return null;
+    
+    // Sélectionner une phrase qui a du sens
+    for (const part of parts) {
+        const cleaned = part.trim();
+        // Vérifier que la phrase contient sujet et verbe (approximativement)
+        if (cleaned.split(/\s+/).length > 5 && 
+            /\b(est|sont|était|ont|a|fut|sera|peut|doit)\b/i.test(cleaned)) {
+            return cleaned;
+        }
+    }
+    
+    return parts[0].trim(); // Prendre la première phrase si rien ne correspond
+}
+
+function generateRealisticOptions(correctStatement, context) {
+    // L'option correcte est la déclaration elle-même
+    const options = [correctStatement];
+    
+    // Générer des alternatives plausibles
+    const alternative1 = negateStatement(correctStatement);
+    options.push(alternative1);
+    
+    // Générer une option avec modification des termes clés
+    const alternative2 = substituteKeyTerms(correctStatement);
+    if (alternative2 !== alternative1) {
+        options.push(alternative2);
+    } else {
+        // Si trop similaire, essayer une autre approche
+        options.push("Cette affirmation n'est vraie que dans certains contextes spécifiques.");
+    }
+    
+    // Ajouter une quatrième option qui semble plausible
+    const alternative3 = alterContext(correctStatement, context);
+    options.push(alternative3);
+    
+    return options;
+}
+
+function alterContext(statement, context) {
+    // Créer une option qui modifie le contexte ou la portée de l'affirmation
+    const modifiers = [
+        "Uniquement au 20ème siècle, ",
+        "Seulement dans certaines régions, ",
+        "D'après certains historiens uniquement, ",
+        "Dans le contexte moderne, ",
+        "Selon certaines interprétations, "
+    ];
+    
+    return modifiers[Math.floor(Math.random() * modifiers.length)] + statement.toLowerCase();
+}
+        
+        // Générateurs de questions spécifiques
+        function generateGeometryQuestion(point) {
+            return {
+                question: `D'après le cours, quelle propriété est associée à ${extractNoun(point)} ?`,
+                options: generateOptionsFromPoint(point),
+                correct: 0, // Première option est correcte
+                feedback: `Explication : ${point}`,
+                sourceLine: point
+            };
+        }
+        
+        function generateAlgebraQuestion(point) {
+            return {
+                question: `Quelle affirmation est vraie concernant ${extractNoun(point)} ?`,
+                options: generateOptionsFromPoint(point),
+                correct: 0,
+                feedback: `Explication : ${point}`,
+                sourceLine: point
+            };
+        }
+        
+        function generateDateQuestion(point) {
+            return {
+                question: `À quelle période correspond l'événement suivant : "${truncateText(point, 80)}" ?`,
+                options: generateOptionsFromPoint(point),
+                correct: 0,
+                feedback: `Explication : ${point}`,
+                sourceLine: point
+            };
+        }
+        
+        function generateGenericQuestion(point, subject) {
+            return {
+                question: `En ${subject}, quelle affirmation est correcte concernant "${truncateText(point, 60)}" ?`,
+                options: generateOptionsFromPoint(point),
+                correct: 0,
+                feedback: `Explication : ${point}`,
+                sourceLine: point
+            };
+        }
+        
+        // Fonctions utilitaires pour la génération de questions
+        function extractNoun(text) {
+            const nouns = ['concept', 'théorème', 'propriété', 'méthode', 'principe', 'phénomène'];
+            
+            for (const noun of nouns) {
+                if (text.toLowerCase().includes(noun)) {
+                    const index = text.toLowerCase().indexOf(noun);
+                    // Extraire quelques mots après le nom
+                    const excerpt = text.substring(index, index + 30);
+                    // Trouver la fin du groupe nominal
+                    const match = excerpt.match(new RegExp(`${noun}\\s+(?:de|du|des|le|la|les)?\\s+([\\wéèêëàâäôöùûüçî\\s]+)`, 'i'));
+                    
+                    if (match && match[1]) {
+                        return `${noun} ${match[1].trim()}`;
+                    }
+                    return noun;
+                }
+            }
+            
+            // Extraire les 3-4 premiers mots significatifs
+            const words = text.split(/\s+/).filter(w => w.length > 3).slice(0, 4).join(' ');
+            return words || "ce concept";
+        }
+        
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+        
+        function generateOptionsFromPoint(point) {
+            // Première option (correcte) basée sur le point-clé
+            const correctOption = extractMainClaim(point);
+            
+            // Générer 3 options incorrectes en modifiant la correcte
+            const incorrectOptions = [
+                negateStatement(correctOption),
+                alterNumbers(correctOption),
+                substituteKeyTerms(correctOption)
+            ];
+            
+            return [correctOption, ...incorrectOptions];
+        }
+        
+        function extractMainClaim(text) {
+            // Simplifier le texte pour extraire l'idée principale
+            let simplified = text;
+            
+            // Supprimer les phrases introductives ou explicatives
+            simplified = simplified.replace(/^(on sait que|il est établi que|selon le cours|d'après la leçon|comme nous l'avons vu)[,:]?\s*/i, '');
+            
+            // Si encore trop long, prendre juste la première partie
+            if (simplified.length > 120) {
+                const parts = simplified.split(',');
+                if (parts.length > 1) {
+                    simplified = parts[0];
+                } else {
+                    simplified = simplified.substring(0, 120);
+                }
+            }
+            
+            return simplified.trim();
+        }
+        
+        function negateStatement(statement) {
+            // Liste de modèles de négation
+            const negationPatterns = [
+                { pattern: /est/g, replacement: "n'est pas" },
+                { pattern: /sont/g, replacement: "ne sont pas" },
+                { pattern: /peut/g, replacement: "ne peut pas" },
+                { pattern: /permet/g, replacement: "ne permet pas" },
+                { pattern: /a /g, replacement: "n'a pas " },
+                { pattern: /toujours/g, replacement: "jamais" },
+                { pattern: /tous/g, replacement: "aucun" },
+                { pattern: /plusieurs/g, replacement: "aucun" },
+                { pattern: /certains/g, replacement: "aucun" }
+            ];
+            
+            // Appliquer un modèle aléatoire
+            const randomPattern = negationPatterns[Math.floor(Math.random() * negationPatterns.length)];
+            let negated = statement.replace(randomPattern.pattern, randomPattern.replacement);
+            
+            // Si aucun changement n'a été fait, ajouter un préfixe de négation
+            if (negated === statement) {
+                negated = "Contrairement à ce qui est indiqué, " + statement.toLowerCase();
+            }
+            
+            return negated;
+        }
+        
+        function alterNumbers(statement) {
+            // Remplacer les nombres par d'autres valeurs
+            let altered = statement;
+            
+            // Détecter les nombres
+            const numberMatches = statement.match(/\b\d+\b/g);
+            
+            if (numberMatches && numberMatches.length > 0) {
+                for (const match of numberMatches) {
+                    const num = parseInt(match);
+                    // Changer le nombre (augmenter ou diminuer)
+                    const newNum = Math.abs(num + (Math.random() > 0.5 ? 1 : -1) * Math.ceil(num * 0.2));
+                    altered = altered.replace(new RegExp('\\b' + match + '\\b', 'g'), newNum.toString());
+                }
+                return altered;
+            }
+            
+            // Si pas de nombre, changer un terme important
+            return substituteKeyTerms(statement);
+        }
+        
+        function substituteKeyTerms(statement) {
+            // Liste de substitutions possibles pour différents domaines
+            const substitutions = {
+                // Maths
+                'triangle': 'carré',
+                'cercle': 'ellipse',
+                'équation': 'inéquation',
+                'théorème': 'postulat',
+                // Histoire
+                'guerre': 'révolution',
+                'révolution': 'réforme',
+                'roi': 'empereur',
+                // Sciences
+                'cellule': 'tissu',
+                'organe': 'système',
+                // Général
+                'augmente': 'diminue',
+                'diminue': 'augmente',
+                'croissant': 'décroissant',
+                'décroissant': 'croissant',
+                'premier': 'dernier',
+                'dernier': 'premier'
+            };
+            
+            let altered = statement;
+            
+            // Essayer de trouver un terme à substituer
+            for (const [original, replacement] of Object.entries(substitutions)) {
+                if (statement.toLowerCase().includes(original)) {
+                    altered = statement.replace(new RegExp('\\b' + original + '\\b', 'gi'), replacement);
+                    break;
+                }
+            }
+            
+            // Si aucun changement n'a été fait, ajouter un modificateur
+            if (altered === statement) {
+                const modifiers = ["Dans certains cas seulement, ", "Uniquement sous conditions spécifiques, ", "Contrairement aux idées reçues, "];
+                const randomModifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+                altered = randomModifier + statement.toLowerCase();
+            }
+            
+            return altered;
+        }
+        
+        // Génération du quiz
+        generateBtn.addEventListener('click', async () => {
+            // Afficher le loader
+            loader.style.display = 'block';
+            generateBtn.disabled = true;
+            
+            try {
+                // Générer les quiz pour chaque fichier s'ils n'existent pas déjà
+                for (const fileName in extractedTexts) {
+                    if (!generatedQuizzes[fileName]) {
+                        const text = extractedTexts[fileName];
+                        const subject = detectedSubjects[fileName];
+                        
+                        // Extraire les points-clés
+                        const keyPoints = extractKeyPoints(text, subject);
+                        
+                        // Générer les questions
+                        const questions = generateQuestions(keyPoints, subject);
+                        
+                        // Stocker le quiz généré
+                        generatedQuizzes[fileName] = {
+                            subject,
+                            questions,
+                            originalText: text
+                        };
+                    }
+                }
+                
+                // Mettre à jour le sélecteur de matières
+                updateSubjectSelector();
+                
+                // Afficher le premier quiz disponible
+                const firstQuizFile = Object.keys(generatedQuizzes)[0];
+                if (firstQuizFile) {
+                    displayQuiz(firstQuizFile);
+                } else {
+                    throw new Error("Aucun quiz n'a pu être généré");
+                }
+// Cacher le loader et afficher le quiz
+loader.style.display = 'none';
+                quizContainer.style.display = 'block';
+                
+                // Faire défiler jusqu'au quiz
+                quizContainer.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error("Erreur lors de la génération du quiz:", error);
+                loader.style.display = 'none';
+                errorMessage.textContent = error.message;
+                errorMessage.style.display = 'block';
+                generateBtn.disabled = false;
+            }
+        });
+        
+        // Mise à jour du sélecteur de matières
+        function updateSubjectSelector() {
+            // Vider les options existantes sauf "Toutes les matières"
+            while (subjectSelect.options.length > 1) {
+                subjectSelect.remove(1);
+            }
+            
+            // Collecter toutes les matières uniques
+            const subjects = new Set();
+            
+            for (const fileName in generatedQuizzes) {
+                subjects.add(generatedQuizzes[fileName].subject);
+            }
+            
+            // Ajouter les options pour chaque matière
+            subjects.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
+            });
+        }
+        
+        // Affichage d'un quiz
+        function displayQuiz(fileName) {
+            const quiz = generatedQuizzes[fileName];
+            
+            if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+                console.error("Quiz non valide ou sans questions pour", fileName);
+                return;
+            }
+            
+            // Stocker le quiz actuel
+            currentQuiz = quiz.questions;
+            currentQuestionIndex = 0;
+            
+            // Afficher le texte original dans l'onglet correspondant
+            documentContent.textContent = quiz.originalText;
+            
+            // Afficher la première question
+            displayQuestion(0);
+            
+            // Mettre à jour le sélecteur de matière
+            subjectSelect.value = quiz.subject;
+        }
+        
+        // Affichage d'une question
+        function displayQuestion(index) {
+            if (!currentQuiz || index < 0 || index >= currentQuiz.length) {
+                console.error("Index de question invalide:", index);
+                return;
+            }
+            
+            // Récupérer la question
+            const questionData = currentQuiz[index];
+            
+            // Mettre à jour l'interface
+            quizQuestion.textContent = questionData.question;
+            
+            // Mettre à jour les options
+            questionData.options.forEach((option, i) => {
+                if (quizOptions[i]) {
+                    // Retirer toutes les classes sauf "quiz-option"
+                    quizOptions[i].className = "quiz-option";
+                    
+                    // Mettre à jour le texte de l'option
+                    const letterSpan = quizOptions[i].querySelector('.option-letter');
+                    if (letterSpan) {
+                        const optionText = option;
+                        quizOptions[i].innerHTML = `
+                            <span class="option-letter">${String.fromCharCode(65 + i)}</span>
+                            ${optionText}
+                        `;
+                    }
+                }
+            });
+            
+            // Mettre à jour le compteur de questions
+            const questionNumber = index + 1;
+            const totalQuestions = currentQuiz.length;
+            
+            const questionNumberSpan = questionCounter.querySelector('.question-number');
+            if (questionNumberSpan) {
+                questionNumberSpan.textContent = questionNumber;
+            }
+            
+            const questionCounterText = questionCounter.querySelector('span:last-child');
+            if (questionCounterText) {
+                questionCounterText.textContent = `Question ${questionNumber} sur ${totalQuestions}`;
+            }
+            
+            // Mettre à jour la barre de progression
+            const progressPercentage = (questionNumber / totalQuestions) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            
+            // Mettre à jour le badge de matière
+            subjectBadge.textContent = subjectSelect.options[subjectSelect.selectedIndex].text;
+            
+            // Cacher le feedback
+            feedback.style.display = 'none';
+            
+            // Réinitialiser le bouton
+            nextBtn.textContent = 'Vérifier';
+            
+            // Activer/désactiver les boutons de navigation
+            prevBtn.disabled = index === 0;
+            prevBtn.style.backgroundColor = index === 0 ? 'var(--grey)' : 'var(--primary)';
+        }
+        
+        // Gestion du sélecteur de matière
+        subjectSelect.addEventListener('change', () => {
+            const selectedSubject = subjectSelect.value;
+            
+            if (selectedSubject === 'all') {
+                // Afficher la première quiz disponible
+                const firstQuizFile = Object.keys(generatedQuizzes)[0];
+                if (firstQuizFile) {
+                    displayQuiz(firstQuizFile);
+                }
+            } else {
+                // Trouver un quiz de la matière sélectionnée
+                for (const fileName in generatedQuizzes) {
+                    if (generatedQuizzes[fileName].subject === selectedSubject) {
+                        displayQuiz(fileName);
+                        break;
+                    }
+                }
+            }
+        });
+        
+        // Gestion des options de quiz
+        quizOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Désélectionner toutes les options
+                quizOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // Sélectionner l'option cliquée
+                option.classList.add('selected');
+                
+                // Si la question a déjà été répondue, ne rien faire de plus
+                if (nextBtn.textContent !== 'Vérifier') return;
+                
+                // Changer le texte du bouton
+                nextBtn.textContent = 'Vérifier';
+                
+                // Masquer le feedback
+                feedback.style.display = 'none';
+            });
+        });
+        
+        // Gestion du bouton Suivant/Vérifier
+        nextBtn.addEventListener('click', () => {
+            if (nextBtn.textContent === 'Vérifier') {
+                // Vérifier si une option est sélectionnée
+                const selectedOption = Array.from(quizOptions).findIndex(opt => opt.classList.contains('selected'));
+                
+                if (selectedOption === -1) {
+                    // Aucune option sélectionnée
+                    return;
+                }
+                
+                // Récupérer la question actuelle
+                const questionData = currentQuiz[currentQuestionIndex];
+                
+                // Vérifier la réponse
+                const isCorrect = selectedOption === questionData.correct;
+                
+                // Afficher le feedback
+                feedback.textContent = questionData.feedback;
+                feedback.style.display = 'block';
+                
+                // Appliquer des classes pour indiquer si c'est correct ou non
+                if (isCorrect) {
+                    feedback.classList.add('feedback-correct');
+                    feedback.classList.remove('feedback-incorrect');
+                } else {
+                    feedback.classList.add('feedback-incorrect');
+                    feedback.classList.remove('feedback-correct');
+                }
+                
+                // Marquer les options correctes et incorrectes
+                quizOptions.forEach((option, index) => {
+                    if (index === questionData.correct) {
+                        option.classList.add('correct');
+                    } else if (index === selectedOption) {
+                        option.classList.add('incorrect');
+                    }
+                });
+                
+                // Changer le texte du bouton
+                nextBtn.textContent = currentQuestionIndex < currentQuiz.length - 1 ? 'Question suivante' : 'Terminer';
+            } else {
+                // Passer à la question suivante
+                if (currentQuestionIndex < currentQuiz.length - 1) {
+                    currentQuestionIndex++;
+                    displayQuestion(currentQuestionIndex);
+                } else {
+                    // Fin du quiz, afficher les résultats
+                    // (non implémenté dans cette version)
+                    quizQuestion.textContent = "Quiz terminé ! Merci d'avoir participé.";
+                    quizOptions.forEach(opt => opt.style.display = 'none');
+                    feedback.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                    prevBtn.style.display = 'none';
+                }
+            }
+        });
+        
+        // Gestion du bouton Précédent
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex);
+            }
+        });
+        
+        // Gestion des onglets
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+                
+                // Activer/désactiver les onglets
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Afficher/masquer le contenu des onglets
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.id === tabId + 'Tab') {
+                        content.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
